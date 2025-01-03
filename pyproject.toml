@@ -1,0 +1,28 @@
+[project]
+name = "pytorch-training"
+version = "0.1.0"
+description = "Predefined training loops for the PyTorch framework."
+readme = "README.md"
+authors = [
+    { name = "Julian Hoever", email = "julianhoever@posteo.de" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "torch>=2.5.1",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.4",
+    "ruff>=0.8.5",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
