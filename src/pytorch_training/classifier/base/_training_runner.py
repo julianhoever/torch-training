@@ -1,29 +1,16 @@
-from typing import Any, Callable, Optional, Protocol
+from typing import Any, Optional, Protocol
 from functools import partial
 
 import torch
 from torch.utils.data import Dataset, DataLoader
-from torch.optim.optimizer import Optimizer
 from torch.optim.adam import Adam
 from torch.optim.lr_scheduler import LRScheduler
 
-from src.pytorch_training.model_hooks import AfterTrainOnBatchHook
+from src.pytorch_training.hooks import AfterTrainOnBatchHook
 from src.pytorch_training.history import History
-from .model_checkpoint_handler import ModelCheckpointHandler
-from .none_lr_scheduler import NoneLRScheduler
-
-
-LRSchedulerFactory = Callable[[Optimizer], LRScheduler]
-
-
-class _ForwardPassFn(Protocol):
-    def __call__(
-        self, model: torch.nn.Module, samples: torch.Tensor, labels: torch.Tensor
-    ) -> tuple[torch.Tensor, torch.Tensor]: ...
-
-
-class _CountCorrectClassified(Protocol):
-    def __call__(self, predictions: torch.Tensor, labels: torch.Tensor) -> int: ...
+from ._model_checkpoint_handler import ModelCheckpointHandler
+from ._none_lr_scheduler import NoneLRScheduler
+from .protocols import LRSchedulerFactory, ForwardPassFn, CountCorrectClassified
 
 
 class _BatchConsumerFn(Protocol):
@@ -32,7 +19,7 @@ class _BatchConsumerFn(Protocol):
     ) -> tuple[torch.Tensor, torch.Tensor]: ...
 
 
-class _TrainingRunner:
+class TrainingRunner:
     def __init__(
         self,
         model: torch.nn.Module,
@@ -41,8 +28,9 @@ class _TrainingRunner:
         batch_size: int,
         epochs: int,
         learning_rate: float,
-        forward_pass_fn: _ForwardPassFn,
-        count_correct_classified: _CountCorrectClassified,
+        forward_pass_fn: ForwardPassFn,
+        count_correct_classified: CountCorrectClassified,
+        loss_fn: torch.nn.Module,
         lr_scheduler_factory: Optional[LRSchedulerFactory],
         load_best: bool,
         num_workers: int,
@@ -56,6 +44,7 @@ class _TrainingRunner:
         self._learning_rate = learning_rate
         self._forward_pass_fn = forward_pass_fn
         self._count_correct_classified = count_correct_classified
+        self._loss_fn = loss_fn
         self._load_best = load_best
         self._num_workers = num_workers
         self._device = device
@@ -137,7 +126,7 @@ class _TrainingRunner:
         self._model.zero_grad()
 
         predictions, loss = self._forward_pass_fn(
-            model=self._model, samples=samples, labels=labels
+            model=self._model, samples=samples, labels=labels, loss_fn=self._loss_fn
         )
 
         loss.backward()
@@ -152,7 +141,9 @@ class _TrainingRunner:
     def _eval_on_batch(
         self, samples: torch.Tensor, labels: torch.Tensor
     ) -> tuple[torch.Tensor, torch.Tensor]:
-        return self._forward_pass_fn(model=self._model, samples=samples, labels=labels)
+        return self._forward_pass_fn(
+            model=self._model, samples=samples, labels=labels, loss_fn=self._loss_fn
+        )
 
     def _print_epoch_info(self, history: History) -> None:
         print(
@@ -162,34 +153,3 @@ class _TrainingRunner:
             f"val_loss: {history.validation['loss'][-1]:.04f} ; "
             f"val_accuracy: {history.validation['accuracy'][-1]:.04f}"
         )
-
-
-def train_classifier_base(
-    model: torch.nn.Module,
-    ds_train: Dataset,
-    ds_val: Dataset,
-    batch_size: int,
-    epochs: int,
-    learning_rate: float,
-    forward_pass_fn: _ForwardPassFn,
-    count_correct_classified: _CountCorrectClassified,
-    lr_scheduler_factory: Optional[LRSchedulerFactory],
-    load_best: bool,
-    num_workers: int,
-    device: Any,
-) -> History:
-    runner = _TrainingRunner(
-        model=model,
-        ds_train=ds_train,
-        ds_val=ds_val,
-        batch_size=batch_size,
-        epochs=epochs,
-        learning_rate=learning_rate,
-        forward_pass_fn=forward_pass_fn,
-        count_correct_classified=count_correct_classified,
-        lr_scheduler_factory=lr_scheduler_factory,
-        load_best=load_best,
-        num_workers=num_workers,
-        device=device,
-    )
-    return runner.run()
