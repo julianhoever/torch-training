@@ -1,5 +1,5 @@
 [project]
-name = "pytorch-training"
+name = "torch-training"
 version = "0.1.0"
 description = "Predefined training loops for the PyTorch framework."
 readme = "README.md"

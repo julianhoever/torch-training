@@ -3,7 +3,7 @@ from typing import Any, Optional
 import torch
 from torch.utils.data import Dataset
 
-from src.pytorch_training.history import History
+from src.torch_training.history import History
 from ._training_runner import TrainingRunner
 from .protocols import LRSchedulerFactory, ForwardPassFn, CountCorrectClassified
 

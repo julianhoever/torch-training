@@ -4,7 +4,7 @@ import torch
 from torch.utils.data import Dataset
 from torch.nn.functional import sigmoid
 
-from pytorch_training.history import History
+from torch_training.history import History
 from .base import LRSchedulerFactory, train_classifier
 
 
