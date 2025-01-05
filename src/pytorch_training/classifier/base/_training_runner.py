@@ -6,7 +6,7 @@ from torch.utils.data import Dataset, DataLoader
 from torch.optim.adam import Adam
 from torch.optim.lr_scheduler import LRScheduler
 
-from src.pytorch_training.hooks import AfterTrainOnBatchHook
+from src.pytorch_training.training_hooks import AfterTrainOnBatchHook
 from src.pytorch_training.history import History
 from ._model_checkpoint_handler import ModelCheckpointHandler
 from ._none_lr_scheduler import NoneLRScheduler
