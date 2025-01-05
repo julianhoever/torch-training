@@ -1,3 +1,4 @@
+from collections.abc import Callable
 from typing import Any, Optional, Protocol
 from functools import partial
 
@@ -30,7 +31,7 @@ class TrainingRunner:
         learning_rate: float,
         forward_pass_fn: ForwardPassFn,
         count_correct_classified: CountCorrectClassified,
-        loss_fn: torch.nn.Module,
+        loss_fn_factory: Callable[[], torch.nn.Module],
         lr_scheduler_factory: Optional[LRSchedulerFactory],
         load_best: bool,
         num_workers: int,
@@ -44,7 +45,7 @@ class TrainingRunner:
         self._learning_rate = learning_rate
         self._forward_pass_fn = forward_pass_fn
         self._count_correct_classified = count_correct_classified
-        self._loss_fn = loss_fn
+        self._loss_fn = loss_fn_factory()
         self._load_best = load_best
         self._num_workers = num_workers
         self._device = device

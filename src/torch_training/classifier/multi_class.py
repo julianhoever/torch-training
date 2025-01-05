@@ -1,3 +1,4 @@
+from collections.abc import Callable
 from typing import Any, Optional
 
 import torch
@@ -15,7 +16,7 @@ def train_model(
     batch_size: int,
     epochs: int,
     learning_rate: float,
-    loss_fn: torch.nn.Module = torch.nn.CrossEntropyLoss(),
+    loss_fn_factory: Callable[[], torch.nn.Module] = torch.nn.CrossEntropyLoss,
     lr_scheduler_factory: Optional[LRSchedulerFactory] = None,
     load_best: bool = True,
     num_workers: int = 1,
@@ -30,7 +31,7 @@ def train_model(
         learning_rate=learning_rate,
         forward_pass_fn=_forward_pass_fn,
         count_correct_classified=_count_correct_classified,
-        loss_fn=loss_fn,
+        loss_fn_factory=loss_fn_factory,
         lr_scheduler_factory=lr_scheduler_factory,
         load_best=load_best,
         num_workers=num_workers,
