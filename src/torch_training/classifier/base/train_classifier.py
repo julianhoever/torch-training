@@ -1,4 +1,3 @@
-from collections.abc import Callable
 from typing import Any, Optional
 
 import torch
@@ -18,7 +17,7 @@ def train_classifier(
     learning_rate: float,
     forward_pass_fn: ForwardPassFn,
     count_correct_classified: CountCorrectClassified,
-    loss_fn_factory: Callable[[], torch.nn.Module],
+    loss_fn: torch.nn.Module,
     lr_scheduler_factory: Optional[LRSchedulerFactory],
     load_best: bool,
     num_workers: int,
@@ -33,7 +32,7 @@ def train_classifier(
         learning_rate=learning_rate,
         forward_pass_fn=forward_pass_fn,
         count_correct_classified=count_correct_classified,
-        loss_fn_factory=loss_fn_factory,
+        loss_fn=loss_fn,
         lr_scheduler_factory=lr_scheduler_factory,
         load_best=load_best,
         num_workers=num_workers,
