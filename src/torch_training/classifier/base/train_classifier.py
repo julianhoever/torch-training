@@ -4,7 +4,7 @@ import torch
 from torch.utils.data import Dataset
 
 from torch_training.history import History
-from ._training_runner import TrainingRunner
+from .training_runner import TrainingRunner
 from .protocols import LRSchedulerFactory, ForwardPassFn, CountCorrectClassified
 
 

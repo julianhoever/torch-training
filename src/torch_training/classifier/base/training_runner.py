@@ -8,8 +8,8 @@ from torch.optim.lr_scheduler import LRScheduler
 
 from torch_training.training_hooks import AfterTrainOnBatchHook
 from torch_training.history import History
-from ._model_checkpoint_handler import ModelCheckpointHandler
-from ._none_lr_scheduler import NoneLRScheduler
+from .model_checkpoint_handler import ModelCheckpointHandler
+from .none_lr_scheduler import NoneLRScheduler
 from .protocols import LRSchedulerFactory, ForwardPassFn, CountCorrectClassified
 
 
