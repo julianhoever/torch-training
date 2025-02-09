@@ -52,5 +52,8 @@ def _forward_pass_fn(
 
 def _count_correct_classified(predictions: torch.Tensor, labels: torch.Tensor) -> int:
     predicted = torch.argmax(predictions, dim=-1)
-    target = torch.argmax(labels, dim=-1)
-    return int((predicted == target).sum().item())
+
+    if labels.dim() == predictions.dim():
+        labels = torch.argmax(labels, dim=-1)
+
+    return int((predicted == labels).sum().item())
